@@ -16,19 +16,20 @@ public class UserController {
     private UserRepository userRepository;
 
     @GetMapping("/users")
-    public Iterable<User> getAllUsers(){
+    public Iterable<User> getAllUsers() {
         return this.userRepository.findAll();
     }
 
     @PostMapping("/users")
-    public User createNewUser(@RequestBody User newUser){
+    @ResponseStatus(HttpStatus.CREATED)
+    public User createNewUser(@RequestBody User newUser) {
         return this.userRepository.save(newUser);
     }
 
     @PutMapping("/users/{displayName}")
-    public User updateUser(@PathVariable String displayName, @RequestBody User updatedUser){
+    public User updateUser(@PathVariable String displayName, @RequestBody User updatedUser) {
         Optional<User> optionalUser = this.userRepository.findByDisplayName(displayName);
-        if(optionalUser.isEmpty()){
+        if (optionalUser.isEmpty()) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "The user was not found in the Database.");
         }
         User user = optionalUser.get();
@@ -44,9 +45,9 @@ public class UserController {
     }
 
     @GetMapping("/users/{displayName}")
-    public User getUserByDisplayName(@PathVariable String displayName){
+    public User getUserByDisplayName(@PathVariable String displayName) {
         Optional<User> optionalUser = userRepository.findByDisplayName(displayName);
-        if(optionalUser.isEmpty()){
+        if (optionalUser.isEmpty()) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "The user was not found in the Database.");
         }
         return optionalUser.get();

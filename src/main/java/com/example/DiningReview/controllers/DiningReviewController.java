@@ -27,12 +27,13 @@ public class DiningReviewController {
     private UserRepository userRepository;
 
     @GetMapping("/dining-reviews")
-    public List<DiningReview> getAllDiningReviews(){
+    public List<DiningReview> getAllDiningReviews() {
         return this.diningReviewRepository.findAll();
     }
 
     @PostMapping("/dining-reviews")
-    public DiningReview createNewDiningReview(@RequestBody DiningReview diningReview){
+    @ResponseStatus(HttpStatus.CREATED)
+    public DiningReview createNewDiningReview(@RequestBody DiningReview diningReview) {
         if (diningReview.getRestaurant() == null || diningReview.getSubmittedBy() == null) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid request body. RestaurantId and SubmittedBy are required.");
         }
@@ -44,7 +45,7 @@ public class DiningReviewController {
         }
         //Check if the user exists
         String submittedBy = diningReview.getSubmittedBy();
-        if(this.userRepository.findByDisplayName(diningReview.getSubmittedBy()).isEmpty()){
+        if (this.userRepository.findByDisplayName(diningReview.getSubmittedBy()).isEmpty()) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User with display name " + submittedBy + " not found.");
         }
         diningReview.setAdminReviewStatus(AdminReviewStatus.PENDING);
@@ -52,19 +53,19 @@ public class DiningReviewController {
     }
 
     @GetMapping("/admin/pending-dining-reviews")
-    public List<DiningReview> getPendingReviews(){
+    public List<DiningReview> getPendingReviews() {
         return this.diningReviewRepository.findByAdminReviewStatus(AdminReviewStatus.PENDING);
     }
 
     @GetMapping("/dining-reviews/approved/{id}")
-    public List<DiningReview> getApprovedReviewsByRestaurant(@PathVariable Long id){
+    public List<DiningReview> getApprovedReviewsByRestaurant(@PathVariable Long id) {
         return this.diningReviewRepository.findByIdAndAdminReviewStatus(id, AdminReviewStatus.ACCEPTED);
     }
 
     @PutMapping("/admin/dining-reviews/{id}/approve")
-    public DiningReview approveReview(@PathVariable Long id){
+    public DiningReview approveReview(@PathVariable Long id) {
         Optional<DiningReview> optionalReview = this.diningReviewRepository.findById(id);
-        if(optionalReview.isEmpty()){
+        if (optionalReview.isEmpty()) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "This review was not found in the Database.");
         }
         DiningReview reviewToApprove = optionalReview.get();
@@ -73,9 +74,9 @@ public class DiningReviewController {
     }
 
     @PutMapping("/admin/dining-reviews/{id}/reject")
-    public DiningReview rejectReview(@PathVariable Long id){
+    public DiningReview rejectReview(@PathVariable Long id) {
         Optional<DiningReview> optionalReview = this.diningReviewRepository.findById(id);
-        if(optionalReview.isEmpty()){
+        if (optionalReview.isEmpty()) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "This review was not found in the Database.");
         }
         DiningReview reviewToReject = optionalReview.get();

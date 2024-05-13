@@ -22,28 +22,31 @@ public class RestaurantController {
     }
 
     @GetMapping("/restaurants/{id}")
-    public Restaurant getRestaurantById(@PathVariable Long id){
+    public Restaurant getRestaurantById(@PathVariable Long id) {
         Optional<Restaurant> optionalRestaurant = this.restaurantRepository.findById(id);
-        if(optionalRestaurant.isEmpty()){
+        if (optionalRestaurant.isEmpty()) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "The id was not found in the Database.");
         }
         return optionalRestaurant.get();
     }
 
     @GetMapping("/restaurants/search")
-    public List<Restaurant> getRestaurantsByZipCode(@RequestParam String zipcode){
-         return this.restaurantRepository.findByZipcode(zipcode);
+    public List<Restaurant> getRestaurantsByZipCode(@RequestParam String zipcode) {
+        return this.restaurantRepository.findByZipcode(zipcode);
     }
 
-
-    public void getRestaurantsByZipCodeAndAllergyScore(){
-        // TODO
+    @GetMapping("/restaurants/search/allergy")
+    public List<Restaurant> getRestaurantsByZipCodeAndAllergyScore(@RequestParam String zipcode) {
+        return this.restaurantRepository.findByZipcodeAndAllergyScoreIsNotNullOrderByAllergyScoreDesc(zipcode);
     }
 
     @PostMapping("/restaurants")
-    public Restaurant createNewRestaurant(@RequestBody Restaurant newRestaurant){
-        if(this.restaurantRepository.existsRestaurantByName(newRestaurant.getName()) &&
-        this.restaurantRepository.existsRestaurantByZipcode(newRestaurant.getZipcode())){
+    @ResponseStatus(HttpStatus.CREATED)
+    public Restaurant createNewRestaurant(@RequestBody Restaurant newRestaurant) {
+        if (newRestaurant.getName() == null || newRestaurant.getZipcode() == null) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Name and zipcode are required.");
+        }
+        if (this.restaurantRepository.existsRestaurantByName(newRestaurant.getName()) && this.restaurantRepository.existsRestaurantByZipcode(newRestaurant.getZipcode())) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "Restaurant already exists.");
         }
         return this.restaurantRepository.save(newRestaurant);
