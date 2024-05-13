@@ -2,12 +2,12 @@ package com.example.DiningReview.controllers;
 
 import com.example.DiningReview.models.AdminReviewStatus;
 import com.example.DiningReview.models.DiningReview;
+import com.example.DiningReview.models.Restaurant;
 import com.example.DiningReview.repositories.DiningReviewRepository;
 import com.example.DiningReview.repositories.RestaurantRepository;
 import com.example.DiningReview.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.web.ErrorResponseException;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -36,9 +36,18 @@ public class DiningReviewController {
         if (diningReview.getRestaurant() == null || diningReview.getSubmittedBy() == null) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid request body. RestaurantId and SubmittedBy are required.");
         }
-        if(this.userRepository.findByDisplayName(diningReview.getSubmittedBy()).isEmpty()){
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "This user was not found in the Database.");
+        // Check if the restaurant exists
+        Long restaurantId = diningReview.getRestaurant().getId();
+        Optional<Restaurant> optionalRestaurant = restaurantRepository.findById(restaurantId);
+        if (optionalRestaurant.isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Restaurant with ID " + restaurantId + " not found.");
         }
+        //Check if the user exists
+        String submittedBy = diningReview.getSubmittedBy();
+        if(this.userRepository.findByDisplayName(diningReview.getSubmittedBy()).isEmpty()){
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User with display name " + submittedBy + " not found.");
+        }
+        diningReview.setAdminReviewStatus(AdminReviewStatus.PENDING);
         return this.diningReviewRepository.save(diningReview);
     }
 

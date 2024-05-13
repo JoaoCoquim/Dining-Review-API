@@ -1,5 +1,6 @@
 package com.example.DiningReview.models;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -24,5 +25,6 @@ public class Restaurant {
     private String zipcode;
 
     @OneToMany(mappedBy = "restaurant")
+    @JsonIgnore
     private List<DiningReview> diningReviews;
 }
