@@ -15,7 +15,7 @@ It also allows an administrator to approve or reject reviews
 2. Ensure you have Java and Maven installed on your system.
 3. Open your terminal or command prompt and navigate to the project directory.
 4. Build the project using Maven: `mvn clean install`.
-5. Run the application by using the following command: `java -jar target/dining-review-api.jar`.
+5. Run the application by using the following command: `java -jar target/DiningReview-0.0.1-SNAPSHOT.jar`.
 
 ## API Endpoints
 - `/users`: GET (Retrieve all users), POST (Create a new user)
